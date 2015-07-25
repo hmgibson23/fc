@@ -25,6 +25,13 @@ def generateHash(params)
   Digest::SHA1.hexdigest complete
 end
 
+def checkHash(key, body, received)
+  complete = body + key
+  hashed = Digest::SHA1.hexdigest complete
+
+  hashed == received
+end
+
 class OfferAction < Cramp::Action
   def start
     passed_params = { :uid => params[:uid],
@@ -33,12 +40,22 @@ class OfferAction < Cramp::Action
                       :timestamp => Time.now.to_i
                     }
 
+    # merge the params and generate a hash
     complete_params = passed_params.merge(FIXED_PARAMS)
     complete_params[:hashkey] = generateHash(complete_params)
 
-    request_uri = OFFER_URI + parameterize(complete_params)
 
-    res = { :req_uri =>  request_uri }.to_json
+    # make the request and check it's valid
+    request_uri = OFFER_URI + parameterize(complete_params)
+    uri = URI.parse(request_uri)
+
+    response = Net::HTTP.get_response(uri)
+
+    valid_response = checkHash(API_KEY, response.body, response["X-Sponsorpay-Response-Signature"])
+
+    res = { :req_uri =>  request_uri,
+            :valid => valid_response,
+            :response => JSON.parse(response.body) }.to_json
     render res
     finish
   end
