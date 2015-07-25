@@ -1,10 +1,10 @@
-# Check out https://github.com/joshbuddy/http_router for more information on HttpRouter
 def app_routes
   Rack::Builder.new do
     use Rack::Session::Cookie
 
     routes = HttpRouter.new do
       post('/').to(HomeAction)
+      post('/checkOffers').to(OfferAction)
       get('/(:file)').to(StaticAction)
     end
 

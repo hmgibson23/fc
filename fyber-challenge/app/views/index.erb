@@ -1,12 +1,14 @@
 <html>
     <body>
-        <script type="text/javascript"
-                src="javascript/mapper.js">
-         eventLogger('/', {
-             'some_id' : 'user did something'
-         });
-        </script>
 
-        fun times
+      <form method="POST" action="/checkOffers">
+          <label>uid</label>
+          <input name="uid" type="text" default="Enter a uid..."  />
+          <label>pub0</label>
+          <input name="pub0" type="text" default="Enter a pub0..."  />
+          <label>page</label>
+          <input name="page" type="text" default="Enter a page..."  />
+          <input type="submit" />
+      </form>
     </body>
 </html>
