@@ -1,7 +1,7 @@
 require "net/http"
 require "uri"
 require 'digest/sha1'
-
+require_relative '../util/helpers'
 
 # the constants
 OFFER_URI="http://api.sponsorpay.com/feed/v1/offers.json?"
@@ -14,25 +14,29 @@ FIXED_PARAMS = { :appid => 157,
                  :offer_types => 112
                }
 
-# helper function to generate the url params
-def parameterize(params)
-  URI.escape(params.sort.collect{|k,v| "#{k}=#{v}"}.join('&'))
-end
-
-# helper to generate the hash
-def generateHash(params)
-  complete = parameterize(params) + '&' + API_KEY
-  Digest::SHA1.hexdigest complete
-end
-
-def checkHash(key, body, received)
-  complete = body + key
-  hashed = Digest::SHA1.hexdigest complete
-
-  hashed == received
-end
 
 class OfferAction < Cramp::Action
+  # set up our view - this is a little crude but
+  # comes with not using a full framework
+  @@views = {}
+
+  Dir[File.join(File.dirname(__FILE__), "../views/*.erb")].each do |f|
+    @@views[File.basename(f, '.erb')] = ERB.new(File.read(f))
+  end
+
+  before_start :check_offers_template
+
+  def check_offers_template
+    file = 'offers'
+
+    if @@views.has_key?(file)
+      @template = @@views[file]
+      yield
+    else
+      halt 404
+    end
+  end
+
   def start
     passed_params = { :uid => params[:uid],
                       :pub0 => params[:pub0],
@@ -53,14 +57,18 @@ class OfferAction < Cramp::Action
 
     valid_response = checkHash(API_KEY, response.body, response["X-Sponsorpay-Response-Signature"])
 
-    res = { :req_uri =>  request_uri,
-            :valid => valid_response,
-            :response => JSON.parse(response.body) }.to_json
-    render res
+    # access denied if there's no valid response
+    if !valid_response
+      halt 403
+    end
+
+    @offers = JSON.parse(response.body)["offers"]
+
+    render @template.result(binding)
     finish
   end
 
   def respond_with
-    [200, {'Content-Type' => 'application/json'}]
+    [200, {'Content-Type' => 'text/html'}]
   end
 end

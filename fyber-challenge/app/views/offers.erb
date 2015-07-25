@@ -1,0 +1,17 @@
+<html>
+    <body>
+        <% if @offers %>
+            <ul>
+                <% for @offer in @offers %>
+                    <li>
+                        <h5><%= @offer["title"] %></h5>
+                        <img src="<%= @offer["thumbnail"]["lowres"]%>" />
+                        <p>Payout: <%= @offer["payout"] %></p>
+                    </li>
+                    <% end %>
+            </ul>
+        <% else %>
+            No offers available.
+         <% end %>
+    </body>
+</html>
