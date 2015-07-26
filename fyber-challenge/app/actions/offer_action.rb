@@ -1,9 +1,9 @@
 require "net/http"
 require "uri"
-require 'digest/sha1'
+
 require_relative '../util/helpers'
 
-# the constants
+# the global constants
 OFFER_URI="http://api.sponsorpay.com/feed/v1/offers.json?"
 API_KEY="b07a12df7d52e6c118e5d47d3f9e60135b109a1f"
 FIXED_PARAMS = { :appid => 157,
@@ -46,7 +46,7 @@ class OfferAction < Cramp::Action
 
     # merge the params and generate a hash
     complete_params = passed_params.merge(FIXED_PARAMS)
-    complete_params[:hashkey] = generateHash(complete_params)
+    complete_params[:hashkey] = generateHash(complete_params, API_KEY)
 
 
     # make the request and check it's valid
