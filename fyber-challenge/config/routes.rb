@@ -3,7 +3,6 @@ def app_routes
     use Rack::Session::Cookie
 
     routes = HttpRouter.new do
-      post('/').to(HomeAction)
       post('/checkOffers').to(OfferAction)
       get('/(:file)').to(StaticAction)
     end
