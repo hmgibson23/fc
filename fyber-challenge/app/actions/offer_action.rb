@@ -6,7 +6,7 @@ require_relative '../globals'
 
 class OfferAction < Cramp::Action
   # set up our view - this is a little crude but
-  # comes with not using a full framework
+  # comes with not using a full MVC framework
   @@views = {}
 
   Dir[File.join(File.dirname(__FILE__), "../views/*.erb")].each do |f|

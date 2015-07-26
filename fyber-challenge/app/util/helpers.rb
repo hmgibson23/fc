@@ -6,7 +6,7 @@ def parameterize(params)
   URI.escape(params.sort.collect{|k,v| "#{k}=#{v}"}.join('&'))
 end
 
-p# helper to generate the hash
+# helper to generate the hash
 def generateHash(params, key)
   complete = parameterize(params) + '&' + key
   Digest::SHA1.hexdigest complete
